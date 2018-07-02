@@ -20,6 +20,7 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:id="@+id/tv_title_display"
             android:singleLine="true"
             android:layout_weight="3"
             android:textSize="18sp"

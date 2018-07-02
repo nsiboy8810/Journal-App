@@ -99,8 +99,8 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.ListI
         try {
         while (cursor.moveToNext()){
                 int id = cursor.getInt(0);
-                String email = cursor.getColumnName(1);
-                String title = cursor.getColumnName(2);
+                String email = cursor.getString(1);
+                String title = cursor.getString(2);
                 String body = cursor.getString(3);
                 String monthDay = cursor.getString(4);
                 String month = cursor.getString(5);

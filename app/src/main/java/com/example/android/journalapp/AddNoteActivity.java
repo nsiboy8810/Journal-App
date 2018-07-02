@@ -51,7 +51,7 @@ public class AddNoteActivity extends AppCompatActivity {
         mEditNoteTitle = findViewById(R.id.et_note_title);
         mNoteBody = mEditNoteBoby.getText().toString();
         mNoteTitle = mEditNoteTitle.getText().toString();
-        mNoteEmail = user != null ? user.getEmail() : null;
+        mNoteEmail =  user.getEmail();
 
         String day = String.valueOf(time.monthDay), month = String.valueOf(time.month), year=String.valueOf(time.year);
 

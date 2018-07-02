@@ -69,7 +69,7 @@ public class viewThoughtActivity extends AppCompatActivity {
         cursor.moveToNext();
         try {
             body = cursor.getString(2);
-            title= cursor.getColumnName(1);
+            title= cursor.getString(1);
         }finally {
             cursor.close();
         }
