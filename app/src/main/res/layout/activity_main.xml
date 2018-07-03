@@ -32,7 +32,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_marginLeft="18dp"
-            android:layout_gravity="center_vertical">
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="18dp">
 
             <TextView
                 android:layout_width="match_parent"
@@ -41,13 +42,13 @@
                 android:textColor="#000000"
                 android:textStyle="bold"
                 android:id="@+id/tv_profile_name"
-                android:text="Nyong Nsikak Emmanuel"/>
+                android:text=""/>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
                 android:id="@+id/tv_profile_email"
-                android:text="nyongconnect@gmail.com"/>
+                android:text=""/>
 
         </LinearLayout>
 

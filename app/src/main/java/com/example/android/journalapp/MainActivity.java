@@ -3,14 +3,19 @@ package com.example.android.journalapp;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.Time;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.android.journalapp.Data.NoteReaderDbHelper;
@@ -34,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.ListI
     List<NoteObject> mNoteList = new ArrayList<>();
     Time time;
     FirebaseAuth mAuth;
+    FirebaseUser user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,20 +49,31 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.ListI
         mEmailTextView = findViewById(R.id.tv_profile_email);
         cImage = findViewById(R.id.profile_image);
         mAuth = FirebaseAuth.getInstance();
+        user = mAuth.getCurrentUser();
+
 
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onStart() {
         super.onStart();
-        if (mAuth.getCurrentUser() == null){
+        mAuth = FirebaseAuth.getInstance();
+        user = mAuth.getCurrentUser();
+
+        if (user == null){
+            Toast.makeText(this,"i'm alive", Toast.LENGTH_LONG).show();
             finish();
+
             Intent intent = new Intent(this, SignInActivity.class);
             startActivity(intent);
         }
-        FirebaseUser user = mAuth.getCurrentUser();
-        Glide.with(this).load(user.getPhotoUrl()).into(cImage);
+
+
+        else  {
+            Glide.with(this).load(user.getPhotoUrl()).into(cImage);
+
         mNameTextview.setText(user.getDisplayName());
         mEmailTextView.setText(user.getEmail());
 
@@ -65,21 +82,24 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.ListI
         time.setToNow();
 
         mCreateNewNote = findViewById(R.id.btn_create_new_note);
-        recyclerView = (RecyclerView) findViewById(R.id.rv_list_notes);
+        recyclerView = findViewById(R.id.rv_list_notes);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.hasFixedSize();
         noteAdapter = new NoteAdapter(this);
         displayDatabaseIfo();
         recyclerView.setAdapter(noteAdapter);
+        }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public void displayDatabaseIfo(){
-        FirebaseUser user = mAuth.getCurrentUser();
 
+        if (user != null) {
             String emailArg = user.getEmail();
 
-        mNoteList.clear();
+
+            mNoteList.clear();
         noteAdapter.noteArray.clear();
         noteAdapter = new NoteAdapter(this);
         NoteReaderDbHelper noteReaderDbHelper = new NoteReaderDbHelper(this);
@@ -95,26 +115,25 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.ListI
         };
         String selectionn = NoteContract.NoteEntry.COLUMN_EMAIL +"=?";
         String [] selectArg = {emailArg};
-        Cursor cursor =db.query(NoteContract.NoteEntry.TABLE_NAME, projector,selectionn,selectArg,null,null,null);
-        try {
-        while (cursor.moveToNext()){
+
+        try (Cursor cursor = db.query(NoteContract.NoteEntry.TABLE_NAME, projector, selectionn, selectArg, null, null, null)) {
+            while (cursor.moveToNext()) {
                 int id = cursor.getInt(0);
-                String email = cursor.getString(1);
+                //String email = cursor.getString(1);
                 String title = cursor.getString(2);
                 String body = cursor.getString(3);
                 String monthDay = cursor.getString(4);
                 String month = cursor.getString(5);
                 String year = cursor.getString(6);
 
-                mNoteList.add(new NoteObject(id, email, title, body,monthDay,month,year));
+                mNoteList.add(new NoteObject(id, emailArg, title, body, monthDay, month, year));
             }
-        } finally {
-            cursor.close();
-        }
+        }catch (Exception ex){Toast.makeText(this, ex.getLocalizedMessage(), Toast.LENGTH_LONG).show(); }
         for (int i = mNoteList.size(); i>0; i--){
             noteAdapter.noteArray.add(mNoteList.get(i-1));
 
         }
+        }else{Toast.makeText(this,"user is null", Toast.LENGTH_LONG).show();}
     }
     public void CreateNewNote(View view){
         Intent createNewNoteIntent = new Intent(this, AddNoteActivity.class);
@@ -128,5 +147,25 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.ListI
         String myId = String.valueOf(noteAdapter.noteArray.get(clickedIndex).id);
         intent.putExtra("id", myId);
         startActivity(intent);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_signout, menu);
+        return true;
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.menu_item_signout){
+            FirebaseAuth.getInstance().signOut();
+            finish();
+            Intent openMain = new Intent(this, SignInActivity.class);
+            startActivity(openMain);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

@@ -1,6 +1,7 @@
 package com.example.android.journalapp;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +23,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import java.net.URL;
+
 public class SignInActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 421;
@@ -34,7 +37,14 @@ public class SignInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
         mAuth = FirebaseAuth.getInstance();
+        FirebaseUser user;
 
+        user = mAuth.getCurrentUser();
+        if (user != null){
+            finish();
+            Intent openMain = new Intent(this, MainActivity.class);
+            startActivity(openMain);
+        }
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -62,7 +72,7 @@ public class SignInActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
+
 
                         } else {
                             // If sign in fails, display a message to the user.
@@ -88,6 +98,7 @@ public class SignInActivity extends AppCompatActivity {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(account);
+                finish();
                 Intent openMain = new Intent(this, MainActivity.class);
                 startActivity(openMain);
 
@@ -104,3 +115,10 @@ public class SignInActivity extends AppCompatActivity {
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 }
+//public class SignInQueryTask extends AsyncTask<URL, Void, String>{
+//
+//    @Override
+//    protected String doInBackground(URL... urls) {
+//        return null;
+//    }
+//}
